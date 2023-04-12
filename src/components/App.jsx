@@ -14,15 +14,15 @@ export  const App = () => {
   
  
       
-      const [imgSearch, setImgSearch] = useState('')
-      const [page, setPage] = useState(1)
-      const [images, setImages] = useState([])
-      const [isLoading, setIsLoading] = useState(false)
+      const [imgSearchName, setImgSearchName] = useState('');
+      const [page, setPage] = useState(1);
+      const [images, setImages] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
       const [modalImg, setModalImg] = useState('');
       
     
-    const FormSubmitHandler = ({ imgSearch }) => {
-      setImgSearch(imgSearch);
+    const FormSubmitHandler = imgSearchName => {
+      setImgSearchName(imgSearchName);
        setImages([]);
        setPage(1);
        
@@ -30,40 +30,45 @@ export  const App = () => {
        
       };
   useEffect(() => {
-    if (imgSearch === '') 
+    if (imgSearchName === '')  {
       return;
-    
-   const fetch = async (imgSearch, page) => {
+    } 
+   const fetch = async () => {
      /* if (
         prevState.imgSearch !== this.state.imgSearch ||
         prevState.page !== this.state.page
       ) {
         this.setState({ isLoading: true });*/
         try {
-          setIsLoading(true)
+          setIsLoading(true);
           const response = await axios({
              url: 'https://pixabay.com/api/',
             params: {
               key: '31354257-dee15866aed277984dcd7ccaa',
-              q: imgSearch,
+              q: imgSearchName,
               image_type: 'photo',
               orientation: 'horizontal',
               safesearch: true,
               per_page: 12,
               page: page,
-            },
-          })
+            }
+        })
+        .then(response => {
           
-  
+          return response.data.hits})
+        
+          if (response.length > 0) {
+            return setImages(prevImages => 
+              [...prevImages, ...response]
+          );
+            }
+        
           if (response.totalHits === 0) {
             return toast.error('Sorry, didn`t find, try another');
           }
-  
-          if (response.data.hits.length) {
-            return setImages(prevImages => 
-             [...prevImages, ...response.data.hits],
-            );
-          } else {
+
+        
+           else {
             return toast.error(
               'Sorry, there are no images matching your search query.'
             );
@@ -76,7 +81,7 @@ export  const App = () => {
         }
       }
     fetch(); 
-  }, [imgSearch, page]);
+  }, [imgSearchName, page]);
  
     
       
@@ -86,9 +91,9 @@ export  const App = () => {
 
   const loadMore = event => {
     event.preventDefault();
-   setPage(pr => ({
-      page: pr.page + 1,
-    }));
+   setPage(prevPage => 
+      page + 1,
+    );
   };
     
   
